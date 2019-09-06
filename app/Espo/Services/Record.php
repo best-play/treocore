@@ -397,22 +397,6 @@ class Record extends \Espo\Core\Services\Base
         return $this->getRepository()->save($entity);
     }
 
-    /**
-     * @param Entity $entity
-     *
-     * @return bool
-     */
-    protected function isValid($entity)
-    {
-        foreach ($entity->getAttributes() as $field => $data) {
-            if (!empty($data['required']) && is_null($entity->get($field))) {
-                throw new BadRequest("Validation failed. '$field' is required");
-            }
-        }
-
-        return true;
-    }
-
     public function checkAssignment(Entity $entity)
     {
         if (!$this->isPermittedAssignedUser($entity)) {
@@ -712,9 +696,6 @@ class Record extends \Espo\Core\Services\Base
 
         $this->beforeCreateEntity($entity, $attachment);
 
-        // is valid ?
-        $this->isValid($entity);
-
         if (!$this->checkAssignment($entity)) {
             throw new Forbidden('Assignment permission failure');
         }
@@ -772,9 +753,6 @@ class Record extends \Espo\Core\Services\Base
         $entity->set($data);
 
         $this->beforeUpdateEntity($entity, $data);
-
-        // is valid ?
-        $this->isValid($entity);
 
         if (!$this->checkAssignment($entity)) {
             throw new Forbidden();

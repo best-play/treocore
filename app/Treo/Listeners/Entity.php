@@ -36,9 +36,11 @@ declare(strict_types=1);
 
 namespace Treo\Listeners;
 
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Hooks\Common;
 use Treo\Core\EventManager\Event;
+use Espo\ORM\Entity as TypeEntity;
 
 /**
  * Class Entity
@@ -60,11 +62,11 @@ class Entity extends AbstractListener
         // checking workflow init states
         $this->workflowInitStates($event);
 
-        // set owner user
-        $this->setOwnerUser($event);
-
         // call hooks
         if (empty($event->getArgument('hooksDisabled')) && empty($event->getArgument('options')['skipHooks'])) {
+            // set owner user
+            $this->setOwnerUser($event);
+
             $this
                 ->createHook(Common\CurrencyConverted::class)
                 ->beforeSave($event->getArgument('entity'), $event->getArgument('options'));
@@ -74,6 +76,8 @@ class Entity extends AbstractListener
             $this
                 ->createHook(Common\NextNumber::class)
                 ->beforeSave($event->getArgument('entity'), $event->getArgument('options'));
+            //check is valid
+            $this->isValid($event->getArgument('entity'));
         }
     }
 
@@ -224,23 +228,38 @@ class Entity extends AbstractListener
     }
 
     /**
+     * @param TypeEntity $entity
+     *
+     * @return bool
+     * @throws BadRequest
+     */
+    protected function isValid(TypeEntity $entity): bool
+    {
+        foreach ($entity->getAttributes() as $field => $data) {
+            if (!empty($data['required']) && is_null($entity->get($field))) {
+                throw new BadRequest("Validation failed. '$field' is required");
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param Event $event
      */
     private function setOwnerUser(Event $event)
     {
-        if (empty($event->getArgument('hooksDisabled')) && empty($event->getArgument('options')['skipHooks'])) {
-            // get entity
-            $entity = $event->getArgument('entity');
+        // get entity
+        $entity = $event->getArgument('entity');
 
-            // get metadata
-            $metadata = $this->getContainer()->get('metadata');
+        // get metadata
+        $metadata = $this->getContainer()->get('metadata');
 
-            // has owner param
-            $hasOwner = !empty($metadata->get('scopes.' . $entity->getEntityType() . '.hasOwner'));
+        // has owner param
+        $hasOwner = !empty($metadata->get('scopes.' . $entity->getEntityType() . '.hasOwner'));
 
-            if ($hasOwner && empty($entity->get('ownerUserId'))) {
-                $entity->set('ownerUserId', $entity->get('createdById'));
-            }
+        if ($hasOwner && empty($entity->get('ownerUserId'))) {
+            $entity->set('ownerUserId', $entity->get('createdById'));
         }
     }
 
