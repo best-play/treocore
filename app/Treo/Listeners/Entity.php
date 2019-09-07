@@ -235,9 +235,17 @@ class Entity extends AbstractListener
      */
     protected function isValid(TypeEntity $entity): bool
     {
+
+        $entityDefs = $this->getContainer()
+                        ->get('metadata')
+                        ->get('entityDefs.' . $entity->getEntityType());
+
         foreach ($entity->getAttributes() as $field => $data) {
             if (!empty($data['required']) && is_null($entity->get($field))) {
                 throw new BadRequest("Validation failed. '$field' is required");
+            }
+            if (!$entity->isNew() && !empty($entityDefs['fields'][$field]['notChange'])) {
+                throw new BadRequest("Validation failed. '$field' is forbidden to edit");
             }
         }
 
