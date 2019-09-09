@@ -147,6 +147,12 @@ Espo.define('treo-core:views/record/panels/relationship', ['class-replace!treo-c
                         this.notify('Removed', 'success');
                         this.collection.fetch();
                         this.model.trigger('after:unrelate', this.link);
+
+                        /* Update header */
+                        let header = this.getParentView().getParentView().getParentView().getView('header');
+                        if (header && header.getView('channelsFilter')) {
+                            header.getView('channelsFilter').updateChannels(() => header.getView('channelsFilter').reRender());
+                        }
                     },
                 });
             });

@@ -125,8 +125,20 @@ Espo.define('views/record/list', 'view', function (Dep) {
             'click .record-checkbox': function (e) {
                 var $target = $(e.currentTarget);
                 var id = $target.data('id');
+                var $row = $target.closest('tr');
+                /* --- */
                 if (e.currentTarget.checked) {
                     this.checkRecord(id, $target);
+
+                    /* Select rows with Shift */
+                    if(e.shiftKey) {
+                        $row.prevUntil("tr.list-row.active").each(function( index, el ) {
+                            var $targetCheckbox = $(el).find('.record-checkbox');
+                            var $targetCheckboxId = $targetCheckbox.data('id');
+                            this.checkRecord($targetCheckboxId, $targetCheckbox );
+                        }.bind(this));
+                    }
+                    /* --- */
                 } else {
                     this.uncheckRecord(id, $target);
                 }
