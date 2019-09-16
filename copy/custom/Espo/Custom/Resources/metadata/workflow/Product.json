@@ -1,0 +1,15 @@
+{
+  "productStatus": {
+    "initStates": [
+      "draft"
+    ],
+    "transitions": {
+      "draft": [
+        "prepared"
+      ],
+      "prepared": [
+        "draft"
+      ]
+    }
+  }
+}
