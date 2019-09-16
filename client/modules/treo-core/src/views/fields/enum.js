@@ -48,8 +48,10 @@ Espo.define('treo-core:views/fields/enum', 'class-replace!treo-core:views/fields
                     workflowArray = this.model.isNew() ? workflow['initStates'] : workflow['transitions'][currentValueAttr];
 
                 if ($.inArray(prevAttrValue, workflowArray) === -1) {
-                    let msg = this.translate('transitionIsForbidden', 'messages').replace('{field}', this.getLabelText());
-                    this.showValidationMessage(msg);
+                    let attr = {};
+                    attr[fieldType] = prevAttrValue;
+                    this.model.set(attr, {silent: true});
+                    this.trigger('cancel:save');
                     return true;
                 }
             });
