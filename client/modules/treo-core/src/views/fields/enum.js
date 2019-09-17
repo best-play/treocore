@@ -35,26 +35,23 @@ Espo.define('treo-core:views/fields/enum', 'class-replace!treo-core:views/fields
 
     return Dep.extend({
         setupOptions: function() {
-            this.listenToOnce(this.model, 'before:save', () => {
-                let entityType = this.model.getEntityType();
-                let fieldType = this.name;
-                let workflow = this.getMetadata().get(['workflow', entityType, fieldType]);
+            let entityType = this.model.getEntityType();
+            let fieldType = this.name;
+            let workflow = this.getMetadata().get(['workflow', entityType, fieldType]);
 
-                if (!workflow)
-                    return false;
+            if (!workflow)
+                return false;
+            let currentValueAttr = this.model.get(fieldType);
+            let workflowArray = this.model.isNew() ? workflow['initStates'] : workflow['transitions'];
 
-                let prevAttrValue = this.model.lastXhr.responseJSON[fieldType],
-                    currentValueAttr = this.model.get(fieldType),
-                    workflowArray = this.model.isNew() ? workflow['initStates'] : workflow['transitions'][currentValueAttr];
-
-                if ($.inArray(prevAttrValue, workflowArray) === -1) {
-                    let attr = {};
-                    attr[fieldType] = prevAttrValue;
-                    this.model.set(attr, {silent: true});
-                    this.trigger('cancel:save');
-                    return true;
+            let optionArray = [];
+            optionArray.push(currentValueAttr);
+            $.each(workflowArray, function(key, valueArr) {
+                if (($.inArray(currentValueAttr, valueArr) !== -1)) {
+                    optionArray.push(key);
                 }
             });
+            this.params.options = optionArray;
         },
     });
 });
