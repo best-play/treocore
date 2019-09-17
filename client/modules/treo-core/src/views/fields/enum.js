@@ -54,7 +54,7 @@ Espo.define('treo-core:views/fields/enum', 'class-replace!treo-core:views/fields
             this.params.options = optionArray;
 
             this.listenToOnce(this.model, 'after:save', () => {
-                this.setup.call(this);
+                this.setupOptions();
             });
         },
     });
