@@ -104,6 +104,9 @@
   "views/fields/currency": [
     "treo-core"
   ],
+  "views/fields/enum": [
+    "treo-core"
+  ],
   "views/fields/link-parent": [
     "treo-core"
   ],
