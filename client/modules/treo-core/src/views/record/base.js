@@ -120,6 +120,15 @@ Espo.define('treo-core:views/record/base', 'class-replace!treo-core:views/record
                     this.trigger('after:save');
                     model.trigger('after:save');
 
+                    for (let name in attrs) {
+                        const el = this.$el.find('[name=' + name + ']');
+                        if (el) {
+                            el.parent().removeClass('has-error')
+                        }
+                    }
+                    this.setDetailMode();
+                    $(window).scrollTop(0);
+
                     if (!callback) {
                         if (!skipExit) {
                             if (isNew) {
@@ -160,10 +169,16 @@ Espo.define('treo-core:views/record/base', 'class-replace!treo-core:views/record
                     model.attributes = beforeSaveAttributes;
                     self.trigger('cancel:save');
 
+                    for (let name in attrs) {
+                        const el = this.$el.find('[name=' + name + ']');
+                        if (el) {
+                            el.parent().addClass('has-error')
+                        }
+                    }
                 }.bind(this),
                 patch: !model.isNew()
             });
-            return true;
+            return false;
         }
 
     });

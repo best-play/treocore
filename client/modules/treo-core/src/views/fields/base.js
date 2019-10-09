@@ -55,6 +55,7 @@ Espo.define('treo-core:views/fields/base', 'class-replace!treo-core:views/fields
 
             if (!attrs) {
                 this.inlineEditClose();
+                self.$el.removeClass('has-error')
                 return;
             }
 
@@ -70,15 +71,20 @@ Espo.define('treo-core:views/fields/base', 'class-replace!treo-core:views/fields
                     self.trigger('after:save');
                     model.trigger('after:save');
                     self.notify('Saved', 'success');
+                    self.inlineEditClose(true);
+                    self.$el.removeClass('has-error')
                 },
                 error: function () {
                     self.notify('Error occured', 'error');
-                    model.set(prev, {silent: true});
-                    self.render()
+                    for (let name in attrs) {
+                        const el = self.$el.find('[name=' + name + ']');
+                        if (el) {
+                            el.parent().addClass('has-error')
+                        }
+                    }
                 },
                 patch: true
             });
-            this.inlineEditClose(true);
         },
 
         showValidationMessage: function (message, target) {
