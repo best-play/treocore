@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * This file is part of EspoCRM and/or TreoCore.
  *
  * EspoCRM - Open Source CRM application.
@@ -32,40 +31,14 @@
  * and "TreoCore" word.
  */
 
-declare(strict_types=1);
+Espo.define('treo-core:views/admin/layouts/list-small', 'class-replace!treo-core:views/admin/layouts/list-small',
+    Dep => Dep.extend({
 
-namespace Treo\Services;
+        isFieldEnabled(model, name) {
+            return !model.getFieldParam(name, 'layoutListSmallDisabled') && Dep.prototype.isFieldEnabled.call(this, model, name);
+        },
 
-use Espo\Core\Exceptions\NotFound;
-use Espo\ORM\Entity;
+    })
+);
 
-/**
- * Service Attachment
- *
- * @author r.ratsun r.ratsun@zinitsolutions.com
- */
-class Attachment extends \Espo\Services\Attachment
-{
-    /**
-     * @var array
-     */
-    protected $inlineAttachmentFieldTypeList = ['text', 'wysiwyg', 'wysiwygMultiLang'];
 
-    /**
-     * @param Entity $entity
-     * @return mixed
-     * @throws NotFound
-     */
-    public function moveFromTmp(Entity $entity)
-    {
-        if ($entity->get("storageFilePath")) {
-            return true;
-        }
-
-        if (!file_exists($entity->get('tmpPath'))) {
-            throw new NotFound("File not found");
-        }
-
-        return $this->getRepository()->moveFromTmp($entity);
-    }
-}

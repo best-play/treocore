@@ -34,38 +34,49 @@
 
 declare(strict_types=1);
 
-namespace Treo\Services;
-
-use Espo\Core\Exceptions\NotFound;
-use Espo\ORM\Entity;
+namespace Treo\Core\Utils\Condition;
 
 /**
- * Service Attachment
+ * Class ConditionGroup
+ * @package Treo\Core\Utils\DynamicLogic
  *
- * @author r.ratsun r.ratsun@zinitsolutions.com
+ * @author Maksim Kokhanskyi <m.kokhanskyi@treolabs.com>
  */
-class Attachment extends \Espo\Services\Attachment
+class ConditionGroup
 {
+    /**
+     * @var string
+     */
+    protected $type = '';
     /**
      * @var array
      */
-    protected $inlineAttachmentFieldTypeList = ['text', 'wysiwyg', 'wysiwygMultiLang'];
+    protected $values = [];
 
     /**
-     * @param Entity $entity
-     * @return mixed
-     * @throws NotFound
+     * ConditionGroup constructor.
+     * @param string $type
+     * @param array $values
      */
-    public function moveFromTmp(Entity $entity)
+    public function __construct(string $type, array $values)
     {
-        if ($entity->get("storageFilePath")) {
-            return true;
-        }
+        $this->type = $type;
+        $this->values = $values;
+    }
 
-        if (!file_exists($entity->get('tmpPath'))) {
-            throw new NotFound("File not found");
-        }
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
-        return $this->getRepository()->moveFromTmp($entity);
+    /**
+     * @return array
+     */
+    public function getValues(): array
+    {
+        return $this->values;
     }
 }
